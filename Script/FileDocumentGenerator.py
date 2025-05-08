@@ -132,6 +132,7 @@ fileTemplatePath = r"C:\Users\EstebanDavyt\Desktop\PythonScript\input\File_.json
 documentTemplatePath = r"C:\Users\EstebanDavyt\Desktop\PythonScript\input\Document_.json"
 folder_path = r"C:\Users\EstebanDavyt\Desktop\PythonScript\Templates"
 destination = r"C:\Users\EstebanDavyt\Desktop\PythonScript\Output"
+all_states_path = r"C:\Users\EstebanDavyt\Desktop\PythonScript\Assets\AllStates.json"
 # This reads the excel file and loads it into a pandas dataframe
 rules = pd.read_excel(
     r"C:\Users\EstebanDavyt\Desktop\PythonScript\Rules\rules.xlsx",
@@ -195,7 +196,15 @@ for file in template_files:
         template_name = filename
         form_number_And_Title_FromExcel = matching_rule['FormNumber']
         edit_date = matching_rule['EditionDate']
-        policy_State = [matching_rule['USStateCode']]
+        
+        with open(all_states_path, 'r') as all_states_file:
+            all_states_data = json.load(all_states_file)
+
+        if matching_rule['USStateCode'] != "ALL":
+            policy_State = [matching_rule['USStateCode']]
+        else:
+            policy_State = all_states_data
+
         OutputTemplateMandatory = ""
         #Required or Optional
         if matching_rule['FormRequired'] == 1:
