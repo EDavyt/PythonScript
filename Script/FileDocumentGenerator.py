@@ -149,11 +149,11 @@ rulesAsJSON = json.loads(rules.to_json(
 
 #Show as JSON the rules loaded from the excel file
 print(rulesAsJSON)
-
-template_files = [f for f in Path(folder_path).iterdir() if f.is_file()]
-
 #Empty the output folder
 empty_output_folder(destination)
+
+
+template_files = [f for f in Path(folder_path).iterdir() if f.is_file()]
 
 for file in template_files:
     try:
@@ -164,15 +164,8 @@ for file in template_files:
         #Exctract FormNumber and FormDescription from the filename
         #TODO : Add check for the file name format
         filename = file.stem
-        parts = filename.split(' ', 3)
         
-        # Get form number and description
-        FormNumber = parts[:3]
-        
-        form_number = ' '.join(parts[:3])
-        
-        print(f"Form Number: {form_number}")
-        print(f"Form Description: {form_description}")
+        noSpaceFilename = filename.replace(" ", "").replace("-", "")
 
         #Matching rules:
 
@@ -184,24 +177,25 @@ for file in template_files:
         # )
 
         #Matching Rule based on FormNumber
-        matching_rule = next(
-            (rule for rule in rulesAsJSON 
-            if f"{rule['FormNumber']}" == form_number),
-            None
-        )
+        for rule in rulesAsJSON:
+            noSpaceFormTitleAndEditDate = (rule['FormNumber'] + rule['EditionDate']).replace(" ", "").replace("-", "")
+            if noSpaceFormTitleAndEditDate in noSpaceFilename:
+                matching_rule = rule
+                break
+        else:
+            matching_rule = None
 
         effective_date = matching_rule['EffectiveDate']
         expiration_date = matching_rule['ExpirationDate']
-        print_order = matching_rule['DisplaySequence']
-        form_description = matching_rule['FormTitle']
+        display_sequence = matching_rule['DisplaySequence']
+        form_title = matching_rule['FormTitle']
         template_name = filename
-        form_number_And_Title_FromExcel = matching_rule['FormNumber']
+        form_number_from_excel = matching_rule['FormNumber']
         edit_date = matching_rule['EditionDate']
         
         with open(all_states_path, 'r') as all_states_file:
             all_states_data = json.load(all_states_file)
-
-        if matching_rule['USStateCode'] != "ALL":
+        if matching_rule['USStateCode'] != "All":
             policy_State = [matching_rule['USStateCode']]
         else:
             policy_State = all_states_data
@@ -214,8 +208,8 @@ for file in template_files:
             OutputTemplateMandatory = "Optional"
 
 
-        duplicate_fileDocument(fileTemplatePath, destination, template_guid, form_number, template_name)
-        duplicate_documentDocument(documentTemplatePath, destination, template_guid, document_guid, form_number_And_Title_FromExcel, form_description, effective_date, expiration_date, print_order,edit_date,policy_State,OutputTemplateMandatory)
+        duplicate_fileDocument(fileTemplatePath, destination, template_guid, form_title, template_name)
+        duplicate_documentDocument(documentTemplatePath, destination, template_guid, document_guid, form_number_from_excel, form_title, effective_date, expiration_date, display_sequence,edit_date,policy_State,OutputTemplateMandatory)
         duplicate_TemplatesDocument(file, destination, template_guid)
     
     except Exception as e:
