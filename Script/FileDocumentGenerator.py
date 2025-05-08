@@ -161,14 +161,15 @@ for file in template_files:
         template_guid = str(guid.uuid4())
         document_guid = str(guid.uuid4())
 
-        #Extract the file name without extension
+        #Exctract FormNumber and FormDescription from the filename
+        #TODO : Add check for the file name format
         filename = file.stem
-        parts = filename.split(' ', 2)
+        parts = filename.split(' ', 3)
         
         # Get form number and description
-        FormNumber = parts[:2]
+        FormNumber = parts[:3]
         
-        form_number = ' '.join(parts[:2])
+        form_number = ' '.join(parts[:3])
         
         print(f"Form Number: {form_number}")
         print(f"Form Description: {form_description}")
