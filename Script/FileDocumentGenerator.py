@@ -128,14 +128,14 @@ def duplicate_TemplatesDocument(folder_path, destination, uuid1gen):
 
 
 # Path for the templates placeholder to use on the generation of the files
-fileTemplatePath = r"C:\Users\EstebanDavyt\Desktop\PythonScript\input\File_.json"
-documentTemplatePath = r"C:\Users\EstebanDavyt\Desktop\PythonScript\input\Document_.json"
-folder_path = r"C:\Users\EstebanDavyt\Desktop\PythonScript\Templates"
-destination = r"C:\Users\EstebanDavyt\Desktop\PythonScript\Output"
-all_states_path = r"C:\Users\EstebanDavyt\Desktop\PythonScript\Assets\AllStates.json"
+fileTemplatePath = r"..\input\File_.json"
+documentTemplatePath = r"..\input\Document_.json"
+folder_path = r"..\Templates"
+destination = r"..\Output"
+all_states_path = r"..\Assets\AllStates.json"
 # This reads the excel file and loads it into a pandas dataframe
 rules = pd.read_excel(
-    r"C:\Users\EstebanDavyt\Desktop\PythonScript\Rules\rules.xlsx",
+    r"..\Rules\rules.xlsx",
     parse_dates=['EffectiveDate', 'ExpirationDate']
 )
 
