@@ -1,0 +1,74 @@
+{
+    "id": "",
+    "Partition": "documentTemplates",
+    "SystemInfo": {
+      "DocumentType": "DocumentTemplate",
+      "SchemaId": "8e6f9af8-4ce2-423c-bf87-380eee1f41e3",
+      "PreviousVersions": null,
+      "Version": 1,
+      "CreatedOn": {
+        "Timestamp": {
+          "Value": "2023-06-16T19:22:52Z",
+          "Epoch": 1686943372
+        },
+        "UserName": "ODYSSEYRE\\NZamorin"
+      },
+      "UpdatedOn": null,
+      "DocumentId": "",
+      "DocumentVersionId": "",
+      "DocumentPartition": "documentTemplates",
+      "DocumentOrganization": "hudsoninsgroup"
+    },
+    "Content": {
+      "LinkedGUID": "8E6F9AF8-4CE2-423C-BF87-380EEE1F41E3",
+      "CommonGUID": "",
+      "IsCurrentVersion": "True",
+      "SchemaID": "8E6F9AF8-4CE2-423C-BF87-380EEE1F41E3",
+      "sysCreatedBy": "ODYSSEYRE\\NZamorin",
+      "InRuleOnSave": "8992AFD0-0893-4053-BBE1-52EE54A7BE5B",
+      "TemplateFile": "",
+      "DocumentSchema": "6C8B361D-5D37-4CBC-A7CD-FFA87E6402A6",
+      "TextPolicyFormNumber": "",
+      "TextOutputTemplateTitle": "",
+      "TemplateCriteria": [
+        {
+          "TransactionStatus": [
+            "Rated",
+            "Quoted",
+            "Bound",
+            "Endorsement Processing",
+            "Endorsed",
+            "Cancelled",
+            "Submission"
+          ],
+          "TemplateStartDate": "",
+          "TemplateEndDate": "",
+          "LegalEntity": [
+            "Hudson Excess Insurance Company",
+            "Hudson Specialty Insurance Company"
+          ],
+          "Product": [
+          "General Liability",
+          "Property"
+          ],
+          "PolicyState": [],
+          "ProgramID": [
+            360
+          ],
+          "ScribeProcessID": "1",
+          "OutputTemplatePrintOrder": "",
+          "OutputTemplateMandatory": "Optional",
+          "TextOutputTemplateSpecimenUrl": "https://hudsonfiles.hudsonportal.com/BL/guid2.pdf",
+          "OutputTemplateFormType": "Static",
+          "TextFormCategoryConcatList": "-1"
+        }
+      ],
+      "sysCreatedTS": "2023-06-16T19:22:52.3199Z"
+    },
+    "Organization": "hudsoninsgroup",
+    "_rid": "3RMAAONaL6fDHAAAAAAAAA==",
+    "_self": "dbs/3RMAAA==/colls/3RMAAONaL6c=/docs/3RMAAONaL6fDHAAAAAAAAA==/",
+    "_etag": "\"cb09714e-0000-0d00-0000-662002520000\"",
+    "_attachments": "attachments/",
+    "_ts": 1713373778
+  }

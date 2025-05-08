@@ -1,0 +1,30 @@
+{
+    "id": "",
+    "Partition": "fileTemplates",
+    "SystemInfo": {
+      "CreatedOn": {
+        "Timestamp": {
+          "Value": "2022-07-28T09:45:54.2398Z",
+          "Epoch": 1659001554.2398
+        },
+        "UserName": null
+      },
+      "UpdatedOn": null,
+      "DocumentId": "",
+      "DocumentVersionId": "",
+      "DocumentPartition": "fileTemplates",
+      "DocumentOrganization": "hudsoninsgroup"
+    },
+    "Content": {
+      "FileName": "",
+      "FileSize": 32768,
+      "AzureBlobStorageContainer": "templates",
+      "AzureBlobStorageFileName": ""
+    },
+    "Organization": "hudsoninsgroup",
+    "_rid": "n49YAJ3+YoWJGAAAAAAAAA==",
+    "_self": "dbs/n49YAA==/colls/n49YAJ3+YoU=/docs/n49YAJ3+YoWJGAAAAAAAAA==/",
+    "_etag": "\"0c003278-0000-0d00-0000-648ccd690000\"",
+    "_attachments": "attachments/",
+    "_ts": 1686949225
+  }
