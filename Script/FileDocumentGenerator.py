@@ -27,8 +27,6 @@ def empty_output_folder(destination):
 def duplicate_fileDocument(fileTemplate, destination, uuid1gen, form_number, template_name):
         # Check if source exists
 
-        #Hola Steven
-
         if not os.path.exists(fileTemplate):
             print("File does not exist")
             return False
