@@ -64,7 +64,7 @@ def duplicate_fileDocument(fileTemplate, destination, uuid1gen, form_number, tem
         print(f"File {new_filename} updated successfully to {destination_path}")
         return True
 
-def duplicate_documentDocument(documentTemplatePath, destination, uuid1gen, uuid2gen, form_number, form_description, effective_date, expiration_date, print_order,edit_date,policy_State,OutputTemplateMandatory):
+def duplicate_documentDocument(documentTemplatePath, destination, uuid1gen, uuid2gen, form_number, form_description, effective_date, expiration_date, print_order,edit_date,policy_State,OutputTemplateMandatory,OutputTemplateFormType):
         if not os.path.exists(documentTemplatePath):
             print("File does not exist")
             return False
@@ -91,8 +91,8 @@ def duplicate_documentDocument(documentTemplatePath, destination, uuid1gen, uuid
             data['SystemInfo']['DocumentId'] = str(uuid2gen)
             data['SystemInfo']['DocumentVersionId'] = str(uuid2gen)
             data['Content']['CommonGUID'] = str(uuid2gen)
-            data['Content']['TextPolicyFormNumber'] = form_number
-            data['Content']['TextOutputTemplateTitle'] = form_number + " "+edit_date+ " " + form_description
+            data['Content']['TextPolicyFormNumber'] = form_number + " "+edit_date
+            data['Content']['TextOutputTemplateTitle'] = form_description
             data['Content']['TemplateFile'] = str(uuid1gen).upper()
             data['Content']['TemplateCriteria'][0]['TemplateStartDate'] = effective_date
             data['Content']['TemplateCriteria'][0]['TemplateEndDate'] = expiration_date
@@ -100,6 +100,7 @@ def duplicate_documentDocument(documentTemplatePath, destination, uuid1gen, uuid
             data['Content']['TemplateCriteria'][0]['OutputTemplateMandatory'] = OutputTemplateMandatory
             data['Content']['TemplateCriteria'][0]['TextOutputTemplateSpecimenUrl'] = "https://hudsonfiles.hudsonportal.com/BL/"+ uuid1gen + ".pdf"
             data['Content']['TemplateCriteria'][0]['OutputTemplatePrintOrder'] = str(print_order)
+            data['Content']['TemplateCriteria'][0]['OutputTemplateFormType'] = OutputTemplateFormType 
 
             # Write back the changes
             file.seek(0)
@@ -208,9 +209,14 @@ for file in template_files:
         else:
             OutputTemplateMandatory = "Optional"
 
+        OutputTemplateFormType = ""
+        if matching_rule['FormType'] == "D":
+            OutputTemplateFormType = "Dynamic"
+        elif matching_rule['FormType'] == "S":
+            OutputTemplateFormType = "Static"
 
         duplicate_fileDocument(fileTemplatePath, destination, template_guid, form_title, template_name)
-        duplicate_documentDocument(documentTemplatePath, destination, template_guid, document_guid, form_number_from_excel, form_title, effective_date, expiration_date, display_sequence,edit_date,policy_State,OutputTemplateMandatory)
+        duplicate_documentDocument(documentTemplatePath, destination, template_guid, document_guid, form_number_from_excel, form_title, effective_date, expiration_date, display_sequence,edit_date,policy_State,OutputTemplateMandatory,OutputTemplateFormType)
         duplicate_TemplatesDocument(file, destination, template_guid)
     
     except Exception as e:
