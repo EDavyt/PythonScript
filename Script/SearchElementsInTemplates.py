@@ -4,7 +4,7 @@ import json
 import docx2txt
 
 def search_word_documents(input_folder, output_json_path):
-    search_term = "CGLPremiumWithoutLiquorLiabilityAndTerrorismDelta"
+    search_term = "PremiumCGLWithoutTerrorismPLFeeDelta"
     matching_files = []
 
     for filename in os.listdir(input_folder):
@@ -25,8 +25,8 @@ def search_word_documents(input_folder, output_json_path):
     with open(output_json_path, 'w') as json_file:
         json.dump(matching_files, json_file, indent=4)
 
-    print(f"Searching for '{search_term}' in Word documents in: {input_folder}")
-    print(f"✅ Found {len(matching_files)} matches. Results saved to: {output_json_path}")
+    print(f"Searching for '{search_term}' in Word documents in folder: {input_folder}")
+    print(f"Found {len(matching_files)} matches. Results saved to: {output_json_path}")
 
 # Example usage
 search_word_documents(r"..\Templates", r"..\Output\matches.json")
