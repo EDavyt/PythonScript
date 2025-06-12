@@ -4,7 +4,7 @@ import json
 import docx2txt
 
 def search_word_documents(input_folder, output_json_path):
-    search_term = ""
+    search_term = "STOP GAP"
     matching_files = []
 
     for filename in os.listdir(input_folder):
@@ -18,7 +18,7 @@ def search_word_documents(input_folder, output_json_path):
                 if search_term in text:
                     matching_files.append(filename)
             except Exception as e:
-                print(f"⚠️ Error reading {filename}: {e}")
+                print(f"Error reading {filename}: {e}")
 
     # Save results
     os.makedirs(os.path.dirname(output_json_path), exist_ok=True)
