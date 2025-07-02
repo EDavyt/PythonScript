@@ -86,8 +86,8 @@ def process_input_directory(input_path, destination, json_filename="Specimen Rep
 
 # Example usage
 if __name__ == "__main__":
-    destination = r"C:\Users\EstebanDavyt\Desktop\PythonScript\Output"
-    input_path = r"C:\Users\EstebanDavyt\Desktop\PythonScript\Templates"
+    destination = r"..\Output"
+    input_path = r"..\Templates"
     
     # Process all files in input directory and create JSON and Excel files
     empty_output_folder(destination)
