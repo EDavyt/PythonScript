@@ -67,7 +67,7 @@ def process_input_directory(input_path, destination, json_filename="Specimen Rep
         # Create JSON object
         json_obj = {
             "FileName": nameoffile,
-            "SpecimenURL": f"https://hudsonfiles.hudsonportal.com/BL/{nameoffile}.pdf"
+            "SpecimenURL": f"https://hudsonfiles.hudsonportal.com/CUMBP/{nameoffile}.pdf"
         }
         json_objects.append(json_obj)
         print(f"Processed file: {filename}")
