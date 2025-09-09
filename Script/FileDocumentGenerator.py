@@ -180,7 +180,7 @@ for file in template_files:
 
         #Matching Rule based on FormNumber
         for rule in rulesAsJSON:
-            noSpaceFormTitleAndEditDate = (rule['FormNumber'] + rule['EditionDate']).replace(" ", "").replace("-", "")
+            noSpaceFormTitleAndEditDate = (rule['FormNumber']).replace(" ", "").replace("-", "")
             if noSpaceFormTitleAndEditDate in noSpaceFilename:
                 matching_rule = rule
                 break
