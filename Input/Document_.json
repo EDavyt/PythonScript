@@ -33,32 +33,45 @@
       "TemplateCriteria": [
         {
           "TransactionStatus": [
-            "Rated",
-            "Quoted",
-            "Bound",
-            "Endorsement Processing",
             "Endorsed",
+            "Endorsement Processing",
             "Cancelled",
-            "Submission"
+            "Bound"
           ],
           "TemplateStartDate": "",
           "TemplateEndDate": "",
           "LegalEntity": [
-            "Hudson Excess Insurance Company",
-            "Hudson Specialty Insurance Company"
+            "Hudson Specialty Insurance Company",
+            "Hudson Excess Insurance Company"
           ],
           "Product": [
-          "General Liability",
-          "Property"
+          "CGL Occ Cont Practice",
+          "CGL Occ Cont Project",
+          "CGL Occ Project-Owners Interest",
+          "CGL Occ Cont Wrap",
+          "CGL Occ Cont All Other",
+          "CGL Occ Mfg",
+          "Products Occ",
+          "Products CM",
+          "Real Estate",
+          "Specialty Real Estate",
+          "Cannabis-Claims Made",
+          "Cannabis-Products Only-Claims Made",
+          "Cannabis-Premises Only-Occurrence",
+          "Specialty - Occurrence",
+          "Specialty - Claims Made",
+          "Specialty Products Only - Claims Made",
+          "Specialty Products Only - Occurrence",
+          "Specialty Premises Only - Occurrence"
           ],
           "PolicyState": [],
           "ProgramID": [
-            360
+            212
           ],
           "ScribeProcessID": "1",
           "OutputTemplatePrintOrder": "",
           "OutputTemplateMandatory": "Optional",
-          "TextOutputTemplateSpecimenUrl": "https://hudsonfiles.hudsonportal.com/BL/guid2.pdf",
+          "TextOutputTemplateSpecimenUrl": "",
           "OutputTemplateFormType": "Static",
           "TextFormCategoryConcatList": "-1"
         }
