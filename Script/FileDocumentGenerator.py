@@ -81,7 +81,7 @@ def duplicate_documentDocument(documentTemplatePath, destination, uuid1gen, uuid
         data['Content']['TemplateCriteria'][0]['TemplateEndDate'] = expiration_date
         data['Content']['TemplateCriteria'][0]['PolicyState'] = policy_State
         data['Content']['TemplateCriteria'][0]['OutputTemplateMandatory'] = OutputTemplateMandatory
-        data['Content']['TemplateCriteria'][0]['TextOutputTemplateSpecimenUrl'] = "https://hudsonfiles.hudsonportal.com/CUMBP/" + uuid1gen + ".pdf"
+        data['Content']['TemplateCriteria'][0]['TextOutputTemplateSpecimenUrl'] = "https://hudsonfiles.hudsonportal.com/CUMBP/" + uuid2gen + ".pdf"
         data['Content']['TemplateCriteria'][0]['OutputTemplatePrintOrder'] = str(print_order)
         data['Content']['TemplateCriteria'][0]['OutputTemplateFormType'] = OutputTemplateFormType
         file.seek(0)
