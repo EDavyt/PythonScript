@@ -275,7 +275,7 @@ def build_specimen_report(destination_dir: Path) -> tuple[Path, Path]:
         name = docx_file.stem
         records.append(
             {
-                "FileName": name,
+                "FileName": name + ".docx",
                 "SpecimenURL": f"https://hudsonfiles.hudsonportal.com/BL/{name}.pdf",
             }
         )
