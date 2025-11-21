@@ -23,7 +23,7 @@ import re
 import shutil
 import uuid
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from io import BytesIO
 from pathlib import Path
 from typing import Iterable, List, Sequence
@@ -102,6 +102,13 @@ def load_all_states(all_states_path: Path) -> List[str]:
         return json.load(f)
 
 
+def now_timestamp() -> tuple[str, float]:
+    """Return current UTC time as (ISO8601 string with Z, epoch seconds)."""
+    dt = datetime.now(timezone.utc)
+    iso_value = dt.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+    return iso_value, dt.timestamp()
+
+
 def format_date(value) -> str:
     if pd.isna(value):
         return ""
@@ -144,6 +151,16 @@ def generate_file_json(
     data["SystemInfo"]["DocumentVersionId"] = guid_text
     data["Content"]["FileName"] = f"{template_name}.docx"
     data["Content"]["AzureBlobStorageFileName"] = f"hudsoninsgroup0001/01/01/{guid_text}.docx"
+
+    # Refresh timestamps to now
+    created_on = data["SystemInfo"].get("CreatedOn", {})
+    created_ts = created_on.get("Timestamp", {})
+    now_iso, now_epoch = now_timestamp()
+    created_ts["Value"] = now_iso
+    created_ts["Epoch"] = int(now_epoch)
+    created_on["Timestamp"] = created_ts
+    data["SystemInfo"]["CreatedOn"] = created_on
+
     base_name = template.stem
     out_name = f"{base_name}{form_title}_{guid_text}{template.suffix}".replace(" ", "_")
     ensure_dir(destination_dir)
@@ -187,6 +204,17 @@ def generate_document_json(
     text_policy_form_number = f"{form_number} {edition_date}".strip()
     content["TextPolicyFormNumber"] = text_policy_form_number
     content["TextOutputTemplateTitle"] = form_title
+
+    # Refresh timestamps to now
+    now_iso, now_epoch = now_timestamp()
+    created_on = data.get("SystemInfo", {}).get("CreatedOn", {})
+    created_ts = created_on.get("Timestamp", {})
+    created_ts["Value"] = now_iso
+    created_ts["Epoch"] = int(now_epoch)
+    created_on["Timestamp"] = created_ts
+    data["SystemInfo"]["CreatedOn"] = created_on
+    content["sysCreatedTS"] = now_iso
+
     criteria_list = content.get("TemplateCriteria", [])
     if criteria_list:
         criteria = criteria_list[0]
