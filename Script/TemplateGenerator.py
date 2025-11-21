@@ -3,7 +3,7 @@ TemplateGenerator
 -----------------
 CLI script that replaces the previous generators by producing:
 - Template docx copies named with a UUID
-- File_*.json and Document_*.json populated from Input/File_.json and Input/Document_.json
+- File_*.json and Document_*.json populated from Masters/File_.json and Masters/Document_.json
 - Specimen PDFs with a diagonal Arial watermark
 - Specimen report (JSON + XLSX)
 
@@ -37,7 +37,7 @@ from reportlab.pdfgen import canvas
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-INPUT_DIR = ROOT_DIR / "Input"
+INPUT_DIR = ROOT_DIR / "Masters"
 TEMPLATES_DIR = ROOT_DIR / "Templates"
 OUTPUT_DIR = ROOT_DIR / "Output"
 RULES_PATH = ROOT_DIR / "Rules" / "rules.xlsx"
