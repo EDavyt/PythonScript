@@ -261,8 +261,9 @@ def build_watermark_page(text: str, width: float, height: float) -> BytesIO:
     c.saveState()
     c.translate(width / 2, height / 2)
     c.rotate(45)
-    c.setFont(font_name, 64)
-    c.setFillColorRGB(0.8, 0.8, 0.8)
+    c.setFont(font_name, 125)
+    # Lighten the gray tint to better match a subtle watermark
+    c.setFillColorRGB(0.85, 0.85, 0.85)
     c.drawCentredString(0, 0, text)
     c.restoreState()
     c.save()
@@ -270,7 +271,7 @@ def build_watermark_page(text: str, width: float, height: float) -> BytesIO:
     return buffer
 
 
-def apply_watermark(base_pdf: Path, output_pdf: Path, watermark_text: str = "SPECIMEN") -> None:
+def apply_watermark(base_pdf: Path, output_pdf: Path, watermark_text: str = "Specimen") -> None:
     reader = PdfReader(str(base_pdf))
     writer = PdfWriter()
     for page in reader.pages:
@@ -278,13 +279,13 @@ def apply_watermark(base_pdf: Path, output_pdf: Path, watermark_text: str = "SPE
         height = float(page.mediabox.height)
         wm_pdf = PdfReader(build_watermark_page(watermark_text, width, height))
         watermark_page = wm_pdf.pages[0]
-        page.merge_page(watermark_page)
-        writer.add_page(page)
+        # Put watermark behind by merging the original page content onto the watermark page
+        watermark_page.merge_page(page)
+        writer.add_page(watermark_page)
     with output_pdf.open("wb") as f:
         writer.write(f)
 
-
-def generate_specimen(docx_path: Path, output_pdf: Path, watermark_text: str = "SPECIMEN") -> None:
+def generate_specimen(docx_path: Path, output_pdf: Path, watermark_text: str = "Specimen") -> None:
     from tempfile import TemporaryDirectory
 
     with TemporaryDirectory() as tmp_dir:
@@ -369,7 +370,7 @@ def process_templates(actions: set[str], clean: bool) -> None:
             )
         if "specimen" in actions:
             pdf_path = OUTPUT_DIR / f"{context.template_guid}.pdf"
-            generate_specimen(context.copied_docx, pdf_path, watermark_text="SPECIMEN")
+            generate_specimen(context.copied_docx, pdf_path, watermark_text="Specimen")
 
     if "report" in actions:
         build_specimen_report(OUTPUT_DIR)
