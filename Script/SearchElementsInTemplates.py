@@ -4,7 +4,7 @@ import json
 import docx2txt
 
 def search_word_documents(input_folder, output_json_path):
-    search_term = "STOP GAP"
+    search_term = "TextIsPremiumBaseRateProducts"
     matching_files = []
 
     for filename in os.listdir(input_folder):
