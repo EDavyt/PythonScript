@@ -23,17 +23,52 @@ def empty_output_folder(destination):
         os.makedirs(destination)
 
 def duplicate_fileDocument(fileTemplate, destination, uuid1gen, form_number, template_name):
-    if not os.path.exists(fileTemplate):
+        # Check if source exists
+        if not os.path.exists(fileTemplate):
+            print("File does not exist")
+            return False
+            
+        # Check if the destination folder exists, if not create it
+        if not os.path.exists(destination):
+            os.makedirs(destination)
+        
+        # Get file extension and base name
+        base_name = os.path.basename(fileTemplate)
+        name, ext = os.path.splitext(base_name)
+        
+        # Create new filename with GUID
+        new_filename = f"{name}{form_number}_{uuid1gen}{ext}".replace(" ", "_")
+        destination_path = os.path.join(destination, new_filename)
+        
+        shutil.copy2(fileTemplate, destination_path)
+        print(f"File duplicated successfully to {destination_path}")
+    
+        with open(destination_path, 'r+') as file:
+            data = json.load(file)
+            
+            # Element modifications
+            data['id'] = str(uuid1gen)
+            data['SystemInfo']['DocumentId'] = str(uuid1gen)
+            data['SystemInfo']['DocumentVersionId'] = str(uuid1gen)
+            data['Content']['FileName'] = template_name + ".docx"
+            data['Content']['AzureBlobStorageFileName'] = "hudsoninsgroup0001/01/01/"+uuid1gen+".docx"
+            
+            # Write back the changes
+            file.seek(0)
+            json.dump(data, file, indent=4)
+            file.truncate()
+        
+        print(f"File {new_filename} updated successfully to {destination_path}")
+        return True
+
+def duplicate_documentDocument(documentTemplatePath, destination, uuid1gen, uuid2gen, form_number, form_description, effective_date, expiration_date, print_order, edit_date, policy_State, OutputTemplateMandatory, OutputTemplateFormType, transaction_status, legal_entity, product):
+    if not os.path.exists(documentTemplatePath):
         print("File does not exist")
         return False
-
+        
+    # Check if the destination folder exists, if not create it
     if not os.path.exists(destination):
         os.makedirs(destination)
-
-    base_name = os.path.basename(fileTemplate)
-    name, ext = os.path.splitext(base_name)
-    new_filename = f"{name}{form_number}_{uuid1gen}{ext}".replace(" ", "_")
-    destination_path = os.path.join(destination, new_filename)
 
     shutil.copy2(fileTemplate, destination_path)
     print(f"File duplicated successfully to {destination_path}")
@@ -57,8 +92,24 @@ def duplicate_documentDocument(documentTemplatePath, destination, uuid1gen, uuid
         print("File does not exist")
         return False
 
-    if not os.path.exists(destination):
-        os.makedirs(destination)
+    # Element modifications
+    data['id'] = str(uuid2gen)
+    data['SystemInfo']['DocumentId'] = str(uuid2gen)
+    data['SystemInfo']['DocumentVersionId'] = str(uuid2gen)
+    data['SystemInfo']['TransactionStatus'] = transaction_status
+    data['SystemInfo']['LegalEntity'] = legal_entity
+    data['SystemInfo']['Product'] = product
+    data['Content']['CommonGUID'] = str(uuid2gen)
+    data['Content']['TextPolicyFormNumber'] = form_number + " "+edit_date
+    data['Content']['TextOutputTemplateTitle'] = form_description
+    data['Content']['TemplateFile'] = str(uuid1gen).upper()
+    data['Content']['TemplateCriteria'][0]['TemplateStartDate'] = effective_date
+    data['Content']['TemplateCriteria'][0]['TemplateEndDate'] = expiration_date
+    data['Content']['TemplateCriteria'][0]['PolicyState'] = policy_State
+    data['Content']['TemplateCriteria'][0]['OutputTemplateMandatory'] = OutputTemplateMandatory
+    data['Content']['TemplateCriteria'][0]['TextOutputTemplateSpecimenUrl'] = "https://hudsonfiles.hudsonportal.com/BL/"+ uuid1gen + ".pdf"
+    data['Content']['TemplateCriteria'][0]['OutputTemplatePrintOrder'] = str(print_order)
+    data['Content']['TemplateCriteria'][0]['OutputTemplateFormType'] = OutputTemplateFormType 
 
     base_name = os.path.basename(documentTemplatePath)
     name, ext = os.path.splitext(base_name)
@@ -112,6 +163,7 @@ folder_path = r"..\Templates"
 destination = r"..\Output"
 all_states_path = r"..\Assets\AllStates.json"
 
+# This reads the excel file and loads it into a pandas dataframe
 rules = pd.read_excel(
     r"..\Rules\rules.xlsx",
     parse_dates=['EffectiveDate', 'ExpirationDate']
@@ -122,7 +174,9 @@ rules['ExpirationDate'] = rules['ExpirationDate'].astype(str).str[:10]
 
 rulesAsJSON = json.loads(rules.to_json(orient='records', default_handler=str))
 
+# Show as JSON the rules loaded from the excel file
 print(rulesAsJSON)
+# Empty the output folder
 empty_output_folder(destination)
 
 template_files = [f for f in Path(folder_path).iterdir() if f.is_file()]
@@ -132,10 +186,13 @@ for file in template_files:
         template_guid = str(guid.uuid4())
         document_guid = str(guid.uuid4())
 
+        # Extract FormNumber and FormDescription from the filename
+        # TODO : Add check for the file name format
         filename = file.stem
         noSpaceFilename = filename.replace(" ", "").replace("-", "")
-        
-        matching_rule = None
+
+        # Matching rules:
+        # Matching Rule based on FormNumber
         for rule in rulesAsJSON:
             noSpaceFormTitleAndEditDate = (rule['FormNumber']).replace(" ", "").replace("-", "")
             if noSpaceFormTitleAndEditDate in noSpaceFilename:
@@ -153,7 +210,12 @@ for file in template_files:
         template_name = filename
         form_number_from_excel = matching_rule['FormNumber']
         edit_date = matching_rule['EditionDate']
-
+        
+        # Get new field values from matching_rule if available, otherwise use defaults
+        transaction_status = matching_rule.get('TransactionStatus')
+        legal_entity = matching_rule.get('LegalEntity')
+        product = matching_rule.get('Product')
+        
         with open(all_states_path, 'r') as all_states_file:
             all_states_data = json.load(all_states_file)
 
@@ -162,12 +224,28 @@ for file in template_files:
         else:
             policy_State = all_states_data
 
-        OutputTemplateMandatory = "Mandatory" if matching_rule['FormRequired'] == 1 else "Optional"
-        OutputTemplateFormType = "Dynamic" if matching_rule['FormType'] == "D" else "Static"
+        OutputTemplateMandatory = ""
+        # Required or Optional
+        if matching_rule['FormRequired'] == 1:
+            OutputTemplateMandatory = "Mandatory"
+        else:
+            OutputTemplateMandatory = "Optional"
+
+        OutputTemplateFormType = ""
+        if matching_rule['FormType'] == "D":
+            OutputTemplateFormType = "Dynamic"
+        elif matching_rule['FormType'] == "S":
+            OutputTemplateFormType = "Static"
 
         duplicate_fileDocument(fileTemplatePath, destination, template_guid, form_title, template_name)
-        duplicate_documentDocument(documentTemplatePath, destination, template_guid, document_guid, form_number_from_excel, form_title, effective_date, expiration_date, display_sequence, edit_date, policy_State, OutputTemplateMandatory, OutputTemplateFormType)
+        duplicate_documentDocument(documentTemplatePath, destination, template_guid, document_guid, form_number_from_excel, form_title, effective_date, expiration_date, display_sequence, edit_date, policy_State, OutputTemplateMandatory, OutputTemplateFormType, transaction_status, legal_entity, product)
         duplicate_TemplatesDocument(file, destination, template_guid)
 
     except Exception as e:
-        print(f"Error processing file {file.name}: {e}")
+        print(f"Error: {e}")
+
+
+# Generate Specimen PDF and Report
+    
+
+# %%

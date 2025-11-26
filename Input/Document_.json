@@ -32,38 +32,11 @@
       "TextOutputTemplateTitle": "",
       "TemplateCriteria": [
         {
-          "TransactionStatus": [
-            "Endorsed",
-            "Endorsement Processing",
-            "Cancelled",
-            "Bound"
-          ],
+          "TransactionStatus": [],
           "TemplateStartDate": "",
           "TemplateEndDate": "",
-          "LegalEntity": [
-            "Hudson Specialty Insurance Company",
-            "Hudson Excess Insurance Company"
-          ],
-          "Product": [
-          "CGL Occ Cont Practice",
-          "CGL Occ Cont Project",
-          "CGL Occ Project-Owners Interest",
-          "CGL Occ Cont Wrap",
-          "CGL Occ Cont All Other",
-          "CGL Occ Mfg",
-          "Products Occ",
-          "Products CM",
-          "Real Estate",
-          "Specialty Real Estate",
-          "Cannabis-Claims Made",
-          "Cannabis-Products Only-Claims Made",
-          "Cannabis-Premises Only-Occurrence",
-          "Specialty - Occurrence",
-          "Specialty - Claims Made",
-          "Specialty Products Only - Claims Made",
-          "Specialty Products Only - Occurrence",
-          "Specialty Premises Only - Occurrence"
-          ],
+          "LegalEntity": [],
+          "Product": [],
           "PolicyState": [],
           "ProgramID": [
             212
