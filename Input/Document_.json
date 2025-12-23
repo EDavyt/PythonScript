@@ -3,7 +3,7 @@
     "Partition": "documentTemplates",
     "SystemInfo": {
       "DocumentType": "DocumentTemplate",
-      "SchemaId": "8e6f9af8-4ce2-423c-bf87-380eee1f41e3",
+      "SchemaId": "",
       "PreviousVersions": null,
       "Version": 1,
       "CreatedOn": {
@@ -20,10 +20,10 @@
       "DocumentOrganization": "hudsoninsgroup"
     },
     "Content": {
-      "LinkedGUID": "8E6F9AF8-4CE2-423C-BF87-380EEE1F41E3",
+      "LinkedGUID": "",
       "CommonGUID": "",
       "IsCurrentVersion": "True",
-      "SchemaID": "8E6F9AF8-4CE2-423C-BF87-380EEE1F41E3",
+      "SchemaID": "",
       "sysCreatedBy": "ODYSSEYRE\\NZamorin",
       "InRuleOnSave": "8992AFD0-0893-4053-BBE1-52EE54A7BE5B",
       "TemplateFile": "",
@@ -38,14 +38,12 @@
           "LegalEntity": [],
           "Product": [],
           "PolicyState": [],
-          "ProgramID": [
-            212
-          ],
+          "ProgramID": [],
           "ScribeProcessID": "1",
           "OutputTemplatePrintOrder": "",
-          "OutputTemplateMandatory": "Optional",
+          "OutputTemplateMandatory": "",
           "TextOutputTemplateSpecimenUrl": "",
-          "OutputTemplateFormType": "Static",
+          "OutputTemplateFormType": "",
           "TextFormCategoryConcatList": "-1"
         }
       ],

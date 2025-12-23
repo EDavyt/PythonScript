@@ -1,0 +1,16 @@
+{
+    "Default": {
+        "SchemaId": "8e6f9af8-4ce2-423c-bf87-380eee1f41e3",
+        "ProgramID": 212,
+        "LinkedGUID": "8E6F9AF8-4CE2-423C-BF87-380EEE1F41E3",
+        "DocumentSchema": "45E8B1EC-5CCF-4021-A411-1DC0E415995F",
+        "InRuleOnSave": "8992AFD0-0893-4053-BBE1-52EE54A7BE5B"
+    },
+    "AAA": {
+        "SchemaId": "7777",
+        "ProgramID": 999,
+        "LinkedGUID": "7777",
+        "DocumentSchema": "7777",
+        "InRuleOnSave": "7777"
+    }
+}
