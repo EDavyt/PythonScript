@@ -30,7 +30,6 @@ from pathlib import Path
 from typing import Iterable, List, Sequence
 
 import pandas as pd
-from docx2pdf import convert as docx2pdf_convert
 from pypdf import PdfReader, PdfWriter
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -38,13 +37,18 @@ from reportlab.pdfgen import canvas
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-INPUT_DIR = ROOT_DIR / "Masters"
+INPUT_DIR = ROOT_DIR / "Input"
 TEMPLATES_DIR = ROOT_DIR / "Templates"
 OUTPUT_DIR = ROOT_DIR / "Output"
 RULES_PATH = ROOT_DIR / "Rules" / "rules.xlsx"
 ALL_STATES_PATH = ROOT_DIR / "Assets" / "AllStates.json"
 FILE_TEMPLATE_PATH = INPUT_DIR / "File_.json"
 DOCUMENT_TEMPLATE_PATH = INPUT_DIR / "Document_.json"
+
+DOCUMENT_SCHEMA_BY_PROGRAM: dict[int, str] = {
+    212: "45E8B1EC-5CCF-4021-A411-1DC0E415995F",
+    241: "3E57E2DB-3886-48A2-9A55-DC228988E754",
+}
 
 
 @dataclass
@@ -97,10 +101,8 @@ def load_rules(rules_path: Path) -> List[dict]:
         "USStateCode",
         "FormRequired",
         "FormType",
-        "Product",
-        "LegalEntity",
-        "TransactionStatus",
     ]
+    optional_list_columns = ["TransactionStatus", "LineOfBusiness", "products"]
     rules_df = pd.read_excel(
         rules_path, parse_dates=["EffectiveDate", "ExpirationDate"]
     )
@@ -112,12 +114,19 @@ def load_rules(rules_path: Path) -> List[dict]:
     rules_df["EffectiveDate"] = rules_df["EffectiveDate"].apply(format_date)
     rules_df["ExpirationDate"] = rules_df["ExpirationDate"].apply(format_date)
 
-    # Parse list fields
-    rules_df["TransactionStatus"] = rules_df["TransactionStatus"].apply(
-        parse_list_field
-    )
-    rules_df["LegalEntity"] = rules_df["LegalEntity"].apply(parse_list_field)
-    rules_df["Product"] = rules_df["Product"].apply(parse_list_field)
+    # Parse optional list fields, defaulting to empty list if column absent
+    for col in optional_list_columns:
+        if col in rules_df.columns:
+            rules_df[col] = rules_df[col].apply(parse_list_field)
+        else:
+            rules_df[col] = [[] for _ in range(len(rules_df))]
+
+    if "programid" in rules_df.columns:
+        rules_df["programid"] = rules_df["programid"].apply(
+            lambda v: int(float(v)) if not pd.isna(v) else None
+        )
+    else:
+        rules_df["programid"] = None
 
     return json.loads(
         rules_df.to_json(orient="records", default_handler=str)
@@ -208,6 +217,7 @@ def generate_document_json(
     template: Path,
     destination_dir: Path,
     all_states: Iterable[str],
+    template_name: str = "",
 ) -> Path:
     with template.open("r", encoding="utf-8") as f:
         data = json.load(f)
@@ -216,7 +226,7 @@ def generate_document_json(
     document_guid_text = str(document_guid)
     form_number = str(rule.get("FormNumber", ""))
     form_title = str(rule.get("FormTitle", ""))
-    edition_date = str(rule.get("EditionDate", "")).strip()
+    edition_date = str(rule.get("EditionDate") or "").strip()
     policy_state_raw = rule.get("USStateCode", "All")
     policy_states = (
         list(all_states)
@@ -262,13 +272,19 @@ def generate_document_json(
         criteria["OutputTemplateMandatory"] = output_template_mandatory
         criteria["OutputTemplateFormType"] = output_template_form_type
         criteria["TextOutputTemplateSpecimenUrl"] = (
-            f"https://hudsonfiles.hudsonportal.com/BL/{template_guid_text}.pdf"
+            f"https://hudsonfiles.hudsonportal.com/CUMBP/{document_guid_text}.pdf"
         )
         criteria["TransactionStatus"] = rule.get("TransactionStatus", [])
-        criteria["LegalEntity"] = rule.get("LegalEntity", [])
-        criteria["Product"] = rule.get("Product", [])
+        criteria["LegalEntity"] = rule.get("LineOfBusiness", [])
+        criteria["Product"] = rule.get("products", [])
+        program_id = rule.get("programid")
+        criteria["ProgramID"] = [program_id] if program_id is not None else []
 
         content["TemplateCriteria"][0] = criteria
+
+    program_id = rule.get("programid")
+    if program_id in DOCUMENT_SCHEMA_BY_PROGRAM:
+        content["DocumentSchema"] = DOCUMENT_SCHEMA_BY_PROGRAM[program_id]
     data["Content"] = content
 
     base_name = template.stem
@@ -333,6 +349,27 @@ def apply_watermark(
         writer.write(f)
 
 
+def docx_to_pdf_via_com(docx_path: Path, out_pdf: Path) -> None:
+    import win32com.client
+    import pythoncom
+
+    pythoncom.CoInitialize()
+    word = None
+    doc = None
+    try:
+        word = win32com.client.DispatchEx("Word.Application")
+        word.Visible = False
+        word.DisplayAlerts = False
+        doc = word.Documents.Open(str(docx_path.resolve()))
+        doc.SaveAs(str(out_pdf.resolve()), FileFormat=17)  # 17 = wdFormatPDF
+    finally:
+        if doc is not None:
+            doc.Close(False)
+        if word is not None:
+            word.Quit()
+        pythoncom.CoUninitialize()
+
+
 def generate_specimen(
     docx_path: Path, output_pdf: Path, watermark_text: str = "Specimen"
 ) -> None:
@@ -340,26 +377,19 @@ def generate_specimen(
 
     with TemporaryDirectory() as tmp_dir:
         tmp_dir_path = Path(tmp_dir)
-        docx2pdf_convert(str(docx_path), str(tmp_dir_path))
         base_pdf = tmp_dir_path / f"{docx_path.stem}.pdf"
+        docx_to_pdf_via_com(docx_path, base_pdf)
         if not base_pdf.exists():
             raise FileNotFoundError(
-                f"docx2pdf did not produce expected PDF at {base_pdf}"
+                f"docx_to_pdf_via_com did not produce expected PDF at {base_pdf}"
             )
         apply_watermark(base_pdf, output_pdf, watermark_text=watermark_text)
 
 
-def build_specimen_report(destination_dir: Path) -> tuple[Path, Path]:
+def build_specimen_report(
+    destination_dir: Path, records: List[dict]
+) -> tuple[Path, Path]:
     ensure_dir(destination_dir)
-    records = []
-    for docx_file in sorted(destination_dir.glob("*.docx")):
-        name = docx_file.stem
-        records.append(
-            {
-                "FileName": name + ".docx",
-                "SpecimenURL": f"https://hudsonfiles.hudsonportal.com/BL/{name}.pdf",
-            }
-        )
     json_path = destination_dir / "Specimen Report.json"
     xlsx_path = destination_dir / "Specimen Report.xlsx"
     with json_path.open("w", encoding="utf-8") as f:
@@ -401,6 +431,7 @@ def process_templates(actions: set[str], clean: bool) -> None:
             )
         )
 
+    specimen_records: List[dict] = []
     for context in contexts:
         rule = context.matching_rule
         if "file" in actions or "document" in actions:
@@ -419,13 +450,20 @@ def process_templates(actions: set[str], clean: bool) -> None:
                 template=DOCUMENT_TEMPLATE_PATH,
                 destination_dir=OUTPUT_DIR,
                 all_states=all_states,
+                template_name=context.template_path.stem,
             )
         if "specimen" in actions:
             pdf_path = OUTPUT_DIR / f"{context.template_guid}.pdf"
             generate_specimen(context.copied_docx, pdf_path, watermark_text="Specimen")
+            specimen_records.append(
+                {
+                    "FileName": f"{context.template_guid}.docx",
+                    "SpecimenURL": f"https://hudsonfiles.hudsonportal.com/CUMBP/{context.document_guid}.pdf",
+                }
+            )
 
     if "report" in actions:
-        build_specimen_report(OUTPUT_DIR)
+        build_specimen_report(OUTPUT_DIR, specimen_records)
 
 
 def parse_args() -> argparse.Namespace:
